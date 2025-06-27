@@ -1,0 +1,25 @@
+# Node.js dependencies
+node_modules/
+
+# Build outputs
+dist/
+out/
+build/
+
+# Vite/Electron caches
+.vite/
+.eslintcache
+
+# Local development config (do not share)
+.vscode/
+*.local
+
+# System files
+.DS_Store
+Thumbs.db
+
+# Log files
+*.log*
+
+# TypeScript incremental build info
+*.tsbuildinfo
