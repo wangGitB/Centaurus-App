@@ -1,63 +1,63 @@
-function App(): React.JSX.Element {
+import { useState } from 'react'
+import Sidebar from './components/Sidebar'
+import TopBar from './components/TopBar'
+import TrainingPage from './pages/TrainingPage' // ✅ 引入训练热图页面
+
+function App() {
+  const [activeTab, setActiveTab] = useState('dashboard')
+  const [sidebarOpen, setSidebarOpen] = useState(true)
+
   return (
-    <div className="min-h-screen flex flex-col bg-gray-100">
-      {/* 顶部导航 */}
-      <header className="bg-white shadow p-4 flex items-center justify-between">
-        <div className="text-xl font-bold text-blue-600">我的网站</div>
-        <nav className="space-x-4 hidden md:block">
-          <a href="#" className="text-gray-700 hover:text-blue-500">
-            首页
-          </a>
-          <a href="#" className="text-gray-700 hover:text-blue-500">
-            关于
-          </a>
-          <a href="#" className="text-gray-700 hover:text-blue-500">
-            联系
-          </a>
-        </nav>
-      </header>
+    <div className="flex flex-col h-screen">
+      {/* 顶部栏全屏宽度 */}
+      <TopBar onToggleSidebar={() => setSidebarOpen(!sidebarOpen)} />
 
-      {/* 主体布局：侧边栏 + 主内容 */}
-      <div className="flex flex-1">
-        {/* 侧边栏 */}
-        <aside className="w-64 bg-white border-r hidden md:block">
-          <ul className="p-4 space-y-2">
-            <li className="font-semibold text-gray-600">菜单</li>
-            <li>
-              <a href="#" className="block py-2 px-3 rounded hover:bg-blue-100">
-                仪表盘
-              </a>
-            </li>
-            <li>
-              <a href="#" className="block py-2 px-3 rounded hover:bg-blue-100">
-                用户管理
-              </a>
-            </li>
-            <li>
-              <a href="#" className="block py-2 px-3 rounded hover:bg-blue-100">
-                设置
-              </a>
-            </li>
-          </ul>
-        </aside>
+      {/* 下半部分：侧边栏 + 主内容 */}
+      <div className="flex flex-1 overflow-hidden">
+        {/* 左侧边栏 */}
+        <Sidebar
+          activeTab={activeTab}
+          setActiveTab={setActiveTab}
+          isOpen={sidebarOpen}
+        />
 
-        {/* 主内容 */}
-        <main className="flex-1 p-6">
-          <h1 className="text-3xl font-bold mb-4 text-gray-800">欢迎来到首页</h1>
-          <p className="text-gray-600 mb-6">这是一个使用 Tailwind CSS 构建的简单响应式布局示例。</p>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="p-4 bg-white rounded shadow">模块 1</div>
-            <div className="p-4 bg-white rounded shadow">模块 2</div>
-            <div className="p-4 bg-white rounded shadow">模块 3</div>
-          </div>
+        {/* 主内容区域 */}
+        <main className="flex-1 bg-white p-6 overflow-auto">
+          {renderTabContent(activeTab)}
         </main>
       </div>
-
-      {/* 底部 */}
-      <footer className="bg-white text-center py-4 text-sm text-gray-500 border-t">
-        © 2025 我的公司. 保留所有权利.
-      </footer>
     </div>
+  )
+}
+
+function getTabLabel(id: string) {
+  const labels: Record<string, string> = {
+    dashboard: '仪表盘',
+    strategy: '策略研究',
+    monitor: '实时监控',
+    logs: '回测日志',
+    favorites: '我的收藏',
+    security: '权限控制',
+    settings: '设置',
+    training: '训练热图', // ✅ 新增
+  }
+  return labels[id] ?? '未知模块'
+}
+
+function renderTabContent(tab: string) {
+  if (tab === 'training') {
+    return <TrainingPage />
+  }
+
+  return (
+    <>
+      <h1 className="text-2xl font-bold text-gray-800 mb-4">
+        当前页面：{getTabLabel(tab)}
+      </h1>
+      <p className="text-gray-600">
+        这是“{getTabLabel(tab)}”页面的内容区。
+      </p>
+    </>
   )
 }
 
