@@ -1,12 +1,4 @@
-import {
-  IconLayoutDashboard,
-  IconSparkles,
-  IconDeviceDesktopAnalytics,
-  IconClock,
-  IconStar,
-  IconShieldLock,
-  IconSettings,
-} from '@tabler/icons-react'
+import { IconLayoutDashboard, IconSparkles, IconSettings } from '@tabler/icons-react'
 import type { FC } from 'react'
 
 type SidebarProps = {
@@ -17,12 +9,7 @@ type SidebarProps = {
 
 const menu = [
   { id: 'dashboard', label: '仪表盘', icon: IconLayoutDashboard },
-  { id: 'strategy', label: '策略研究', icon: IconSparkles },
-  { id: 'monitor', label: '实时监控', icon: IconDeviceDesktopAnalytics },
-  { id: 'logs', label: '回测日志', icon: IconClock },
-  { id: 'favorites', label: '我的收藏', icon: IconStar },
-  { id: 'security', label: '权限控制', icon: IconShieldLock },
-  { id: 'training', label: '训练热图', icon: IconSparkles },
+  { id: 'training', label: '训练热图', icon: IconSparkles }
 ]
 
 const Sidebar: FC<SidebarProps> = ({ activeTab, setActiveTab, isOpen }) => {
@@ -73,7 +60,7 @@ const Sidebar: FC<SidebarProps> = ({ activeTab, setActiveTab, isOpen }) => {
       <div className="py-2">
         <div
           onClick={() => setActiveTab('settings')}
-          className="group relative flex items-center h-12 px-2 cursor-pointer"
+          className="group relative flex items-center h-12 cursor-pointer"
         >
           <div
             className={`absolute left-0 top-1/2 -translate-y-1/2 h-6 w-1 rounded-r-full transition-colors ${
