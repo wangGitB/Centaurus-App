@@ -9,7 +9,8 @@ type SidebarProps = {
 
 const menu = [
   { id: 'dashboard', label: 'Dashboard', icon: IconLayoutDashboard },
-  { id: 'training', label: 'Training', icon: IconChartDots }
+  { id: 'training', label: 'Training', icon: IconChartDots },
+  { id: 'kline', label: 'Kline', icon: IconChartDots },
 ]
 
 const SideBar: FC<SidebarProps> = ({ activeTab, setActiveTab, isOpen }) => {

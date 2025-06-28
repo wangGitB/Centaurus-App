@@ -3,6 +3,7 @@ import SideBar from './components/SideBar'
 import TopBar from './components/TopBar'
 import TrainingPage from './pages/TrainingPage'
 import DashboardPage from './pages/DashboardPage'
+import KlinePage from './pages/KlinePage'
 
 function App(): React.JSX.Element {
   const [activeTab, setActiveTab] = useState('dashboard')
@@ -32,6 +33,9 @@ function renderTabContent(tab: string): React.JSX.Element {
 
   if (tab === 'training') {
     return <TrainingPage />
+  }
+  if (tab === 'kline') {
+    return <KlinePage />
   }
 
   return (
