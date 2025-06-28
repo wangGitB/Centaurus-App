@@ -1,3 +1,20 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+:root {
+  --f-sans: 'Helvetica Neue', Arial, sans-serif; /* 自定义字体 */
+  --fs-16: 16px;
+  --fw-light: 300;
+}
+
+* {
+  user-select: none;
+}
+
+p {
+  user-select: text;
+  font-family: var(--f-sans);
+  font-size: var(--fs-16);
+  font-weight: var(--fw-light);
+}

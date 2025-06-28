@@ -27,10 +27,10 @@ const Sidebar: FC<SidebarProps> = ({ activeTab, setActiveTab, isOpen }) => {
               onClick={() => setActiveTab(id)}
               className="group relative flex items-center h-12 cursor-pointer"
             >
-              {/* 蓝色指示器 */}
+              {/* 使用 primary 颜色指示器 */}
               <div
                 className={`absolute left-0 top-1/2 -translate-y-1/2 h-full w-0.5 transition-colors ${
-                  isActive ? 'bg-blue-600' : 'bg-transparent'
+                  isActive ? 'bg-primary' : 'bg-transparent'
                 }`}
               />
 
@@ -38,7 +38,7 @@ const Sidebar: FC<SidebarProps> = ({ activeTab, setActiveTab, isOpen }) => {
               <div className="w-14 min-w-[3.5rem] max-w-[3.5rem] h-full flex items-center justify-center">
                 <Icon
                   className={`h-5 w-5 transition-colors duration-200 transform ${
-                    isActive ? 'text-blue-600' : 'text-gray-400 group-hover:text-gray-600'
+                    isActive ? 'text-primary' : 'text-gray-400 group-hover:text-gray-600'
                   } translate-y-[1px]`}
                 />
               </div>
@@ -63,8 +63,8 @@ const Sidebar: FC<SidebarProps> = ({ activeTab, setActiveTab, isOpen }) => {
           className="group relative flex items-center h-12 cursor-pointer"
         >
           <div
-            className={`absolute left-0 top-1/2 -translate-y-1/2 h-6 w-1 rounded-r-full transition-colors ${
-              activeTab === 'settings' ? 'bg-blue-600' : 'bg-transparent'
+            className={`absolute left-0 top-1/2 -translate-y-1/2 h-full w-0.5 transition-colors ${
+              activeTab === 'settings' ? 'bg-primary' : 'bg-transparent'
             }`}
           />
 
@@ -72,7 +72,7 @@ const Sidebar: FC<SidebarProps> = ({ activeTab, setActiveTab, isOpen }) => {
             <IconSettings
               className={`h-5 w-5 transition-colors duration-200 transform ${
                 activeTab === 'settings'
-                  ? 'text-blue-600'
+                  ? 'text-primary'
                   : 'text-gray-400 group-hover:text-gray-600'
               } translate-y-[1px]`}
             />

@@ -1,181 +1,224 @@
-import { useRef, useEffect, useState } from 'react'
-import type { FC } from 'react'
+import React, { useEffect, useState } from 'react'
 
-export type TimeStampMeta = {
-  start: number;  // 开始时间
-  end: number;    // 结束时间
-  interval: number; // 时间间隔
-}
+const InteractiveHeatmap: React.FC = () => {
+  // Used to store received messages
+  const [messages, setMessages] = useState<any[]>([])
+  const [isTraining, setIsTraining] = useState(false) // Controls whether training is in progress
+  const [isPaused, setIsPaused] = useState(false) // Controls whether training is paused
+  const [socket, setSocket] = useState<WebSocket | null>(null) // WebSocket connection
+  const [isConnected, setIsConnected] = useState(false) // WebSocket connection status
 
-export type InteractiveHeatmapProps = {
-  data: number[][] // n x N 热图数据
-  cellWidth?: number
-  cellHeight?: number
-  historyData?: number[] // 1D 历史数据
-  TimeStampMeta: TimeStampMeta // 时间戳元数据
-  dataOffset?: number // 热图数据的起始时间戳偏移
-  historyOffset?: number // 历史数据的起始时间戳偏移
-}
+  // Initialize cache (using localStorage to persist data between page reloads)
+  useEffect(() => {
+    const cachedMessages = localStorage.getItem('messages')
+    if (cachedMessages) {
+      setMessages(JSON.parse(cachedMessages))
+    }
+  }, [])
 
-const InteractiveHeatmap: FC<InteractiveHeatmapProps> = ({
-  data,
-  cellWidth = 4,
-  cellHeight = 4,
-  historyData = [],
-  TimeStampMeta: { start, end, interval },
-  dataOffset = 0, // 默认为 0，表示热图数据从 `start` 开始
-  historyOffset = 0 // 默认为 0，表示历史数据从 `start` 开始
-}) => {
-  const canvasRef = useRef<HTMLCanvasElement | null>(null)
-  const [hover, setHover] = useState<{ x: number; y: number } | null>(null)
+  // Establish WebSocket connection
+  const connectWebSocket = () => {
+    const socket = new WebSocket('ws://localhost:5555')
 
-  const n = data.length
-  const N = data[0].length
-  const max = Math.max(...data.flat())
-  const width = n * cellWidth
-  const height = N * cellHeight
+    socket.onopen = () => {
+      console.log('WebSocket connected')
+      setIsConnected(true) // WebSocket connected
+    }
 
-  // 自动生成历史数据的时间戳，考虑历史数据的 start 偏移量
-  const historyTimeStamps = Array.from(
-    { length: historyData.length },
-    (_, i) => start + historyOffset + i * interval
-  )
+    socket.onmessage = (event) => {
+      const newData = JSON.parse(event.data)
+      console.log('Received new data:', newData)
 
-  // 热图数据的时间戳，考虑数据的 start 偏移量
-  const dataTimeStamps = Array.from({ length: n }, (_, i) => start + dataOffset + i * interval)
+      // Update buttons based on training status
+      if (newData.status === 'training_complete') {
+        setIsTraining(false) // When training is complete, enable buttons again
+      }
 
-  // 时间范围内的比例尺
-  const timeScale = width / (end - start)
+      if (newData.status === 'training_aborted') {
+        setIsTraining(false)
+        setIsPaused(false)
+        console.log('Training aborted')
+      }
+
+      if (newData.status === 'training_stopped') {
+        setIsPaused(true)
+        console.log('Training stopped')
+      }
+
+      if (newData.status === 'training_resumed') {
+        setIsPaused(false)
+        setIsTraining(true)
+        console.log('Training resumed')
+      }
+
+      // Update message list with new data
+      setMessages((prevMessages) => {
+        const updatedMessages = [...prevMessages, newData]
+        // Persist messages in localStorage
+        localStorage.setItem('messages', JSON.stringify(updatedMessages))
+        return updatedMessages
+      })
+    }
+
+    socket.onerror = (error) => {
+      console.error('WebSocket error:', error)
+      setIsConnected(false) // Update status if connection error occurs
+    }
+
+    socket.onclose = () => {
+      console.log('WebSocket connection closed')
+      setIsConnected(false) // Update status if connection is closed
+    }
+
+    return socket
+  }
 
   useEffect(() => {
-    const canvas = canvasRef.current
-    if (!canvas) return
-    const ctx = canvas.getContext('2d')
-    if (!ctx) return
+    const socket = connectWebSocket() // Establish WebSocket connection when the component mounts
+    setSocket(socket)
 
-    canvas.width = width
-    canvas.height = height
-
-    // 绘制热图
-    for (let t = 0; t < n; t++) {
-      for (let i = 0; i < N; i++) {
-        const p = data[t][i]
-        const alpha = p / max
-        ctx.fillStyle = `rgba(37,99,235,${alpha})` // blue-600 with alpha
-        ctx.fillRect(t * cellWidth, (N - 1 - i) * cellHeight, cellWidth, cellHeight)
-      }
+    return () => {
+      console.log('Cleaning up WebSocket connection')
+      socket.close() // Close WebSocket connection when the component unmounts
     }
+  }, []) // Empty dependency array to ensure WebSocket is established only when the component first loads
 
-    // 绘制历史数据折线图，横轴为时间戳
-    if (historyData.length > 0) {
-      ctx.strokeStyle = '#FF6347' // 红色的折线
-      ctx.lineWidth = 2
-
-      for (let i = 0; i < historyData.length - 1; i++) {
-        // 将时间戳映射到横轴
-        const time1 = historyTimeStamps[i]
-        const time2 = historyTimeStamps[i + 1]
-        const x1 = (time1 - start) * timeScale
-        const x2 = (time2 - start) * timeScale
-
-        // 根据历史数据的值，映射到画布高度
-        const y1 = height - (historyData[i] / Math.max(...historyData)) * height
-        const y2 = height - (historyData[i + 1] / Math.max(...historyData)) * height
-
-        ctx.beginPath()
-        ctx.moveTo(x1, y1)
-        ctx.lineTo(x2, y2)
-        ctx.stroke()
-      }
+  // Start training button click event
+  const startTraining = () => {
+    if (socket) {
+      setIsTraining(true) // Lock the button
+      setMessages([]) // Reset cached messages when starting training
+      localStorage.removeItem('messages') // Remove cache in localStorage
+      const startMessage = { action: 'start_training' }
+      socket.send(JSON.stringify(startMessage))
+      console.log('Sent start training command:', startMessage) // Confirm command sent
     }
+  }
 
-    // 绘制横轴 (X轴)
-    ctx.strokeStyle = '#000'
-    ctx.beginPath()
-    ctx.moveTo(0, height)
-    ctx.lineTo(width, height)
-    ctx.stroke()
-
-    // 绘制纵轴 (Y轴)
-    ctx.beginPath()
-    ctx.moveTo(0, 0)
-    ctx.lineTo(0, height)
-    ctx.stroke()
-
-    // 绘制 X 轴时间标签
-    for (let t = 0; t < n; t += Math.floor(n / 5)) {
-      const x = t * timeScale
-      const label = new Date(dataTimeStamps[t] * 1000).toLocaleTimeString()
-      ctx.fillText(label, x, height + 15)
+  // Abort training
+  const abortTraining = () => {
+    if (socket) {
+      const abortMessage = { action: 'abort_training' }
+      socket.send(JSON.stringify(abortMessage))
+      console.log('Sent abort training command:', abortMessage)
     }
+  }
 
-    // 绘制 Y 轴标签（概率）
-    for (let i = 0; i < N; i += Math.floor(N / 5)) {
-      const y = height - i * (height / N)
-      ctx.fillText(`${((i / N) * 100).toFixed(2)}%`, -35, y)
+  // Stop training
+  const stopTraining = () => {
+    if (socket) {
+      const stopMessage = { action: 'stop_training' }
+      socket.send(JSON.stringify(stopMessage))
+      console.log('Sent stop training command:', stopMessage)
     }
-  }, [
-    data,
-    cellWidth,
-    cellHeight,
-    n,
-    N,
-    max,
-    width,
-    height,
-    historyData,
-    start,
-    end,
-    timeScale,
-    historyTimeStamps
-  ])
+  }
 
-  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    const rect = (e.target as HTMLCanvasElement).getBoundingClientRect()
-    const x = Math.floor((e.clientX - rect.left) / cellWidth)
-    const y = Math.floor((e.clientY - rect.top) / cellHeight)
-    setHover({ x, y })
+  // Resume training
+  const resumeTraining = () => {
+    if (socket) {
+      const resumeMessage = { action: 'resume_training' }
+      socket.send(JSON.stringify(resumeMessage))
+      console.log('Sent resume training command:', resumeMessage)
+    }
+  }
+
+  // Reconnect WebSocket
+  const reconnectWebSocket = () => {
+    console.log('Attempting to reconnect...')
+    setIsConnected(false) // Reset connection status
+    const socket = connectWebSocket() // Reconnect WebSocket
+    setSocket(socket)
   }
 
   return (
-    <div className="relative w-full h-full overflow-auto">
-      <canvas
-        ref={canvasRef}
-        onMouseMove={handleMouseMove}
-        className="block border"
-        style={{ width, height }}
-      />
-      {/* Tooltip */}
-      {hover && hover.x >= 0 && hover.x < n && hover.y >= 0 && hover.y < N && (
+    <div className="p-6">
+      <h1 className="text-xl font-semibold mb-4">Interactive Data</h1>
+
+      {/* WebSocket connection status indicator with breathing light effect */}
+      <div className="flex items-center mb-4">
         <div
-          className="absolute bg-white text-sm text-gray-700 shadow px-2 py-1 rounded border"
-          style={{
-            left: hover.x * cellWidth + 10,
-            top: hover.y * cellHeight + 10
-          }}
+          className={`w-4 h-4 rounded-full mr-4 ${isConnected ? 'bg-green-500 animate-pulse' : 'bg-red-500 animate-pulse'}`}
+        ></div>
+        <button
+          onClick={reconnectWebSocket}
+          disabled={isConnected}
+          className={`px-4 py-2 rounded-lg font-medium transition-colors duration-300 ${
+            isConnected
+              ? 'bg-gray-500 text-white cursor-not-allowed'
+              : 'bg-blue-500 text-white hover:bg-blue-600'
+          }`}
         >
-          <div>
-            <b>Step:</b> {hover.x}
-          </div>
-          <div>
-            <b>X-bin:</b> {N - 1 - hover.y}
-          </div>
-          <div>
-            <b>Prob:</b> {data[hover.x]?.[N - 1 - hover.y]?.toFixed(4)}
-          </div>
-        </div>
-      )}
-      {/* 底部坐标 */}
-      {hover && (
-        <div className="absolute bottom-0 left-0 w-full flex justify-between text-sm text-gray-700">
-          <div>
-            <b>X:</b> {hover.x}
-          </div>
-          <div>
-            <b>Y:</b> {hover.y}
-          </div>
-        </div>
-      )}
+          Reconnect
+        </button>
+      </div>
+
+      {/* Start Training Button */}
+      <button
+        onClick={startTraining}
+        disabled={isTraining || isPaused || !isConnected}
+        className={`px-4 py-2 rounded-lg font-medium transition-colors duration-300 ${
+          isTraining
+            ? 'bg-blue-500 text-white cursor-not-allowed'
+            : isPaused
+              ? 'bg-yellow-500 text-white'
+              : 'bg-green-500 text-white hover:bg-green-600'
+        } ${!isConnected ? 'bg-gray-500 text-white opacity-60 bg-gradient-to-r from-gray-400 to-gray-500' : ''}`}
+      >
+        {isTraining ? 'Training...' : 'Start Training'}
+      </button>
+
+      {/* Abort Training Button */}
+      <button
+        onClick={abortTraining}
+        disabled={(!isTraining && !isPaused) || !isConnected}
+        className={`mt-2 px-4 py-2 rounded-lg font-medium transition-colors duration-300 ${
+          (!isTraining && !isPaused) || !isConnected
+            ? 'bg-gray-500 text-white cursor-not-allowed bg-gradient-to-r from-gray-400 to-gray-500'
+            : 'bg-red-500 text-white hover:bg-red-600'
+        }`}
+      >
+        Abort Training
+      </button>
+
+      {/* Stop Training Button */}
+      <button
+        onClick={stopTraining}
+        disabled={!isTraining || !isConnected}
+        className={`mt-2 px-4 py-2 rounded-lg font-medium transition-colors duration-300 ${
+          !isTraining || !isConnected
+            ? 'bg-gray-500 text-white cursor-not-allowed bg-gradient-to-r from-gray-400 to-gray-500'
+            : 'bg-yellow-500 text-white hover:bg-yellow-600'
+        }`}
+      >
+        Stop Training
+      </button>
+
+      {/* Resume Training Button */}
+      <button
+        onClick={resumeTraining}
+        disabled={!isPaused || !isConnected}
+        className={`mt-2 px-4 py-2 rounded-lg font-medium transition-colors duration-300 ${
+          !isPaused || !isConnected
+            ? 'bg-gray-500 text-white cursor-not-allowed bg-gradient-to-r from-gray-400 to-gray-500'
+            : 'bg-blue-500 text-white hover:bg-blue-600'
+        }`}
+      >
+        Resume Training
+      </button>
+
+      {/* Display received raw JSON data */}
+      <ul className="mt-4">
+        {messages.length === 0 ? (
+          <li>No data received</li>
+        ) : (
+          messages.map((msg, index) => (
+            <li key={index} className="mb-2">
+              <strong>Received Data:</strong>
+              <pre className="bg-gray-100 p-2 rounded">{JSON.stringify(msg, null, 2)}</pre>
+            </li>
+          ))
+        )}
+      </ul>
     </div>
   )
 }

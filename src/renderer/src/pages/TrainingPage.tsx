@@ -23,11 +23,11 @@ const TrainingPage: FC = () => {
   return (
     <>
       <InteractiveHeatmap
-        data={realHeatmapData} // 使用热图数据
-        historyData={realHistoryData} // 使用历史数据
-        TimeStampMeta={TimeStampMeta} // 使用时间戳元数据
-        dataOffset={0} // 设置热图数据的起始偏移量
-        historyOffset={200} // 设置历史数据的起始偏移量
+      // data={realHeatmapData} // 使用热图数据
+      // historyData={realHistoryData} // 使用历史数据
+      // TimeStampMeta={TimeStampMeta} // 使用时间戳元数据
+      // dataOffset={0} // 设置热图数据的起始偏移量
+      // historyOffset={200} // 设置历史数据的起始偏移量
       />
     </>
   )

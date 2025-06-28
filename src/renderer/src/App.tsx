@@ -2,7 +2,7 @@ import { useState } from 'react'
 import Sidebar from './components/Sidebar'
 import TopBar from './components/TopBar'
 import TrainingPage from './pages/TrainingPage'
-// import DashboardPage from './pages/DashboardPage'
+import DashboardPage from './pages/DashboardPage'
 
 function App(): React.JSX.Element {
   const [activeTab, setActiveTab] = useState('dashboard')
@@ -26,9 +26,9 @@ function App(): React.JSX.Element {
 }
 
 function renderTabContent(tab: string): React.JSX.Element {
-  // if (tab === 'dashboard') {
-  //   return <DashboardPage />
-  // }
+  if (tab === 'dashboard') {
+    return <DashboardPage />
+  }
 
   if (tab === 'training') {
     return <TrainingPage />
