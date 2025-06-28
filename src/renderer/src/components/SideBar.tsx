@@ -1,4 +1,4 @@
-import { IconLayoutDashboard, IconSparkles, IconSettings } from '@tabler/icons-react'
+import { IconLayoutDashboard, IconChartDots, IconSettings } from '@tabler/icons-react'
 import type { FC } from 'react'
 
 type SidebarProps = {
@@ -8,11 +8,11 @@ type SidebarProps = {
 }
 
 const menu = [
-  { id: 'dashboard', label: '仪表盘', icon: IconLayoutDashboard },
-  { id: 'training', label: '训练热图', icon: IconSparkles }
+  { id: 'dashboard', label: 'Dashboard', icon: IconLayoutDashboard },
+  { id: 'training', label: 'Training', icon: IconChartDots }
 ]
 
-const Sidebar: FC<SidebarProps> = ({ activeTab, setActiveTab, isOpen }) => {
+const SideBar: FC<SidebarProps> = ({ activeTab, setActiveTab, isOpen }) => {
   return (
     <div
       className="h-full bg-white border-r flex flex-col justify-between transition-all duration-300"
@@ -49,7 +49,7 @@ const Sidebar: FC<SidebarProps> = ({ activeTab, setActiveTab, isOpen }) => {
                   isOpen ? 'opacity-100 max-w-[180px]' : 'opacity-0 max-w-0'
                 }`}
               >
-                <span className="text-sm text-gray-800">{label}</span>
+                <span className="text-sm">{label}</span>
               </div>
             </div>
           )
@@ -83,7 +83,7 @@ const Sidebar: FC<SidebarProps> = ({ activeTab, setActiveTab, isOpen }) => {
               isOpen ? 'opacity-100 max-w-[180px]' : 'opacity-0 max-w-0'
             }`}
           >
-            <span className="text-sm text-gray-800">设置</span>
+            <span className="text-sm">设置</span>
           </div>
         </div>
       </div>
@@ -91,4 +91,4 @@ const Sidebar: FC<SidebarProps> = ({ activeTab, setActiveTab, isOpen }) => {
   )
 }
 
-export default Sidebar
+export default SideBar

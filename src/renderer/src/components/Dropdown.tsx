@@ -14,10 +14,10 @@ const Dropdown: React.FC<DropdownProps> = ({ title, children }) => {
   }
 
   return (
-    <div className="relative w-full">
+    <div className="relative w-full border border-gray-300" style={{ borderWidth: '1px' }}>
       {/* 下拉框标题 */}
       <div
-        className="flex items-center p-2 bg-gray-200 text-gray-700 cursor-pointer border-b border-gray-300"
+        className="flex items-center p-1 bg-gray-200 text-gray-700 cursor-pointer border-b border-gray-300"
         onClick={toggleDropdown}
       >
         {/* 图标和标题在左侧 */}

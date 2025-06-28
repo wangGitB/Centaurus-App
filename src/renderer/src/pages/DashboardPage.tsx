@@ -1,6 +1,12 @@
 import { FC } from 'react'
 import Dropdown from '../components/Dropdown'
-import YellowBreathingCircle from '../components/BreathingCircle'
+import { NavigateButton } from '@renderer/components/NavigateButton'
+import {
+  RedBreathingCircle,
+  YellowBreathingCircle,
+  GreenBreathingCircle
+} from '@renderer/components/BreathingCircle'
+import { Button } from '@renderer/components/Button'
 
 const DashboardPage: FC = () => {
   return (
@@ -18,11 +24,11 @@ const DashboardPage: FC = () => {
         <p>101112</p>
       </Dropdown>
 
-      <button className="box-border border-[1.5px] border-gray-600 w-28 h-12 text-center hover:border-[2.5px]">
-        Button
-      </button>
-
+      <NavigateButton title="Button" />
+      <RedBreathingCircle />
       <YellowBreathingCircle />
+      <GreenBreathingCircle />
+      <Button title="123" />
     </>
   )
 }
