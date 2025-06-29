@@ -177,7 +177,7 @@ const Kline: FC = () => {
   useEffect(() => {
     if (chart && klinData.length) {
       const { categoryData, values, volumes } = splitData(klinData);
-      console.log(categoryData, values, volumes);
+      // console.log(categoryData, values, volumes);
 
       // 创建series数据
       const series: echarts.EChartsOption["series"] = [
