@@ -3,7 +3,7 @@ import SideBar from './components/SideBar'
 import TopBar from './components/TopBar'
 import TrainingPage from './pages/TrainingPage'
 import DashboardPage from './pages/DashboardPage'
-import KlinePage from './pages/KlinePage'
+import KlinePage from './pages/kine/index'
 
 function App(): React.JSX.Element {
   const [activeTab, setActiveTab] = useState('dashboard')
