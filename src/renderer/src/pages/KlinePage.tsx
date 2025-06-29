@@ -2,9 +2,10 @@ import { FC } from "react"
 
 const Kline: FC = () => {
   return (
-    <>asd
+    <>
+        asd
     </>
   )
 }
 
-export default Kline
+export default Kline;
