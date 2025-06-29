@@ -70,8 +70,8 @@ const Kline: FC = () => {
       label: { backgroundColor: "#777" },
     },
     grid: [
-      { top: "0%", left: "5%", right: ".6%", height: "75%" },
-      { left: "5%", right: ".6%", top: "75.5%", height: "16%" },
+      { top: "0%", left: ".6%", right: "5%", height: "75%" },
+      { left: ".6%", right: "5%", top: "75.5%", height: "16%" },
     ],
     xAxis: [
       {
@@ -112,6 +112,7 @@ const Kline: FC = () => {
         scale: true,
         axisLabel: { show: true, fontSize: 12 },
         splitLine: { show: true, lineStyle: { color: "#404552" } },
+        position: "right",
       },
       {
         scale: true,

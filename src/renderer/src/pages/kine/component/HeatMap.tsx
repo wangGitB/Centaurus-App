@@ -59,8 +59,8 @@ const HeatMap: FC = () => {
                     height: '90%',
                     top: '0%',
                     bottom: '10%',
-                    left: '5%',
-                    right: '.6%'
+                    left: '.6%',
+                    right: '5%'
                 },
                 xAxis: {
                     type: 'category',
